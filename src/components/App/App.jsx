@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import initialPersons from '../../persons.json';
+import { nanoid } from 'nanoid';
+import ContactList from '../ContactList/ContactList';
+import SearchBox from '../SearchBox/SearchBox';
+import ContactForm from '../ContactForm/ContactForm';
+
+import css from './App.module.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [persons, setPersons] = useState(() => {
+    const savedPersons = localStorage.getItem('persons');
+    if (savedPersons !== null) {
+      return JSON.parse(savedPersons);
+    }
+    return initialPersons;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('persons', JSON.stringify(persons));
+  }, [persons]);
+  localStorage.clear();
+
+  const [filter, setFilter] = useState('');
+
+  const addPerson = person => {
+    setPersons(prev => [...prev, { ...person, id: nanoid() }]);
+  };
+
+  const deletePerson = personId => {
+    setPersons(prevPersons => {
+      return prevPersons.filter(person => person.id !== personId);
+    });
+  };
+
+  const selectedPersons = persons.filter(person =>
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className={css.container}>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addPerson} />
+      <SearchBox value={filter} onChange={setFilter} />
+      <ContactList persons={selectedPersons} onDelete={deletePerson} />
+    </div>
+  );
 }
 
-export default App
+export default App;
