@@ -1,6 +1,7 @@
 .contact {
     display: flex;
     flex-direction: column;
+    margin-left: 10px;
 }
 
 .nameBox,
@@ -9,9 +10,11 @@
     justify-content: start;
     align-items: center;
     margin-left: 8px;
+    white-space: nowrap;
 }
 
 .name,
 .phone {
     margin-left: 10px;
 }
+
